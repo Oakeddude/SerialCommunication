@@ -349,24 +349,9 @@ namespace SerialCommunication
                 // off = 0
                 //double rc1 = 500.0 / 1023.0;
                 //double huidigeTemp = rc1 * waardeA1;
-                double referentieSpanning = 4.0; // meet deze echt!
-                int som = 0;
-
-                for (int i = 0; i < 10; i++)
-                {
-                    serialPortArduino.WriteLine("get a1");
-
-                    antwoord = serialPortArduino.ReadLine();
-                    antwoord = antwoord.Trim().Substring(4);
-
-                    som += int.Parse(antwoord);
-                }
-
-                int gemiddelde = som / 10;
-
-                double spanning = gemiddelde * referentieSpanning / 1023.0;
-                //double huidigeTemp = spanning * 100.0;
-                //double spanning = waardeA1 * referentieSpanning / 1023.0;
+                double referentieSpanning = 4.85;
+             
+                double spanning = waardeA1 * referentieSpanning / 1023.0;
 
                 double huidigeTemp = spanning * 100.0;
                 labelHuidigeTemp.Text = huidigeTemp.ToString("F1") + " °C";
@@ -393,22 +378,25 @@ namespace SerialCommunication
         {
             try
             {
-                serialPortArduino.Open();
-                string commando = "ping";
-                serialPortArduino.WriteLine(commando);
-                string antwoord = serialPortArduino.ReadLine();
-                antwoord = antwoord.TrimEnd();
+                if (serialPortArduino.IsOpen)
+                {
+                    serialPortArduino.Open();
+                    string commando = "ping";
+                    serialPortArduino.WriteLine(commando);
+                    string antwoord = serialPortArduino.ReadLine();
+                    antwoord = antwoord.TrimEnd();
 
-                if (antwoord == "pong")
-                {
-                    radioButtonVerbonden.Checked = true;
-                    buttonConnect.Text = "Disconnect";
-                    labelStatus.Text = "Status: Connected";
-                }
-                else
-                {
-                    serialPortArduino.Close();
-                    labelStatus.Text = "Error: verkeerd antwoord";
+                    if (antwoord == "pong")
+                    {
+                        radioButtonVerbonden.Checked = true;
+                        buttonConnect.Text = "Disconnect";
+                        labelStatus.Text = "Status: Connected";
+                    }
+                    else
+                    {
+                        serialPortArduino.Close();
+                        labelStatus.Text = "Error: verkeerd antwoord";
+                    }
                 }
             }
             catch (Exception exception)
