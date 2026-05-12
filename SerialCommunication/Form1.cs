@@ -347,13 +347,9 @@ namespace SerialCommunication
                 // Herschalen 0..1023 → 0..500 °C
                 // rc  = 500.0 / 1023.0
                 // off = 0
-                //double rc1 = 500.0 / 1023.0;
-                //double huidigeTemp = rc1 * waardeA1;
-                double referentieSpanning = 4.85;
-             
-                double spanning = waardeA1 * referentieSpanning / 1023.0;
+                double rc1 = 500.0 / 1023.0;
+                double huidigeTemp = rc1 * waardeA1;
 
-                double huidigeTemp = spanning * 100.0;
                 labelHuidigeTemp.Text = huidigeTemp.ToString("F1") + " °C";
 
                 // Led aansturen — digitale pin 2
@@ -368,11 +364,9 @@ namespace SerialCommunication
                 radioButtonVerbonden.Checked = false;
                 buttonConnect.Text = "Connect";
             }
+
         }
-        private void timerConnection_Tick(object sender, EventArgs e)
-        {
-            
-        }
+
 
         private void timerConnection_Tick_Tick(object sender, EventArgs e)
         {
@@ -398,7 +392,17 @@ namespace SerialCommunication
                         labelStatus.Text = "Error: verkeerd antwoord";
                     }
                 }
+                else
+                {
+                    // ik heb een verbinding -> de gebruiker wil deze verbreken
+                    serialPortArduino.Close();
+                    radioButtonVerbonden.Checked = false;
+                    buttonConnect.Text = "Connect";
+                    labelStatus.Text = "Status: Disconnected";
+                }
             }
+
+
             catch (Exception exception)
             {
                 if (exception.Message == "De poort is al open.")
