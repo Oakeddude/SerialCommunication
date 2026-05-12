@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.IO.Ports;
@@ -28,6 +29,7 @@ namespace SerialCommunication
                 if (comboBoxPoort.Items.Count > 0) comboBoxPoort.SelectedIndex = 0;
 
                 comboBoxBaudrate.SelectedIndex = comboBoxBaudrate.Items.IndexOf("115200");
+                timerConnection.Enabled = true;
             }
             catch (Exception)
             { }
@@ -345,9 +347,28 @@ namespace SerialCommunication
                 // Herschalen 0..1023 → 0..500 °C
                 // rc  = 500.0 / 1023.0
                 // off = 0
-                double rc1 = 500.0 / 1023.0;
-                double huidigeTemp = rc1 * waardeA1;
+                //double rc1 = 500.0 / 1023.0;
+                //double huidigeTemp = rc1 * waardeA1;
+                double referentieSpanning = 4.0; // meet deze echt!
+                int som = 0;
 
+                for (int i = 0; i < 10; i++)
+                {
+                    serialPortArduino.WriteLine("get a1");
+
+                    antwoord = serialPortArduino.ReadLine();
+                    antwoord = antwoord.Trim().Substring(4);
+
+                    som += int.Parse(antwoord);
+                }
+
+                int gemiddelde = som / 10;
+
+                double spanning = gemiddelde * referentieSpanning / 1023.0;
+                //double huidigeTemp = spanning * 100.0;
+                //double spanning = waardeA1 * referentieSpanning / 1023.0;
+
+                double huidigeTemp = spanning * 100.0;
                 labelHuidigeTemp.Text = huidigeTemp.ToString("F1") + " °C";
 
                 // Led aansturen — digitale pin 2
@@ -363,6 +384,50 @@ namespace SerialCommunication
                 buttonConnect.Text = "Connect";
             }
         }
+        private void timerConnection_Tick(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void timerConnection_Tick_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                serialPortArduino.Open();
+                string commando = "ping";
+                serialPortArduino.WriteLine(commando);
+                string antwoord = serialPortArduino.ReadLine();
+                antwoord = antwoord.TrimEnd();
+
+                if (antwoord == "pong")
+                {
+                    radioButtonVerbonden.Checked = true;
+                    buttonConnect.Text = "Disconnect";
+                    labelStatus.Text = "Status: Connected";
+                }
+                else
+                {
+                    serialPortArduino.Close();
+                    labelStatus.Text = "Error: verkeerd antwoord";
+                }
+            }
+            catch (Exception exception)
+            {
+                if (exception.Message == "De poort is al open.")
+                {
+
+                }
+                else
+                {
+                    labelStatus.Text = "Error: " + exception.Message;
+                    serialPortArduino.Close();
+                    radioButtonVerbonden.Checked = false;
+                    buttonConnect.Text = "Connect";
+                }
+
+            }
+        }
+        
     }
     
 }

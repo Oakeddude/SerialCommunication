@@ -93,6 +93,7 @@
             this.timerOefening3 = new System.Windows.Forms.Timer(this.components);
             this.timerOefening4 = new System.Windows.Forms.Timer(this.components);
             this.timerOefening5 = new System.Windows.Forms.Timer(this.components);
+            this.timerConnection = new System.Windows.Forms.Timer(this.components);
             this.tabControl.SuspendLayout();
             this.tabPageInstellingen.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -827,6 +828,11 @@
             this.timerOefening5.Interval = 1000;
             this.timerOefening5.Tick += new System.EventHandler(this.timerOefening5_Tick_1);
             // 
+            // timerConnection
+            // 
+            this.timerConnection.Interval = 1000;
+            this.timerConnection.Tick += new System.EventHandler(this.timerConnection_Tick_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -941,6 +947,7 @@
         private System.Windows.Forms.Timer timerOefening3;
         private System.Windows.Forms.Timer timerOefening4;
         private System.Windows.Forms.Timer timerOefening5;
+        private System.Windows.Forms.Timer timerConnection;
     }
 }
 
